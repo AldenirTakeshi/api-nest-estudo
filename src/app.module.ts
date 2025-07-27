@@ -3,9 +3,20 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventModule } from './event/event.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [EventModule, MongooseModule.forRoot("mongodb+srv://aldenirtakeshi:261217@cluster0aws.qlmg4ch.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0AWS")],
+  imports: [
+    ConfigModule.forRoot(),
+    EventModule,
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>("MONGODB_URI")
+      })
+    })
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
